@@ -40,6 +40,8 @@ var sample = [
         "score": "8,234,128"
     }
 ]
+const MAP_COUNT = 5;
+let CURRENT_PAGINATION = 0;
 var button = document.getElementById('button');
 var mainBody = document.getElementById('main-body');
 
@@ -49,27 +51,39 @@ var instances = M.Chips.init(elems,{
     onChipDelete: () => onChipChange(instances)
 });
 
+function onPaginationChange(clickedId) {
+    CURRENT_PAGINATION = clickedId;
+    editBody();
+}
 function editBody() {
     const div = document.createElement('div');
-
     div.className = "col s12";
-
-    div.innerHTML = 
-    `
-    <!-- Pagination -->
-    <ul class="pagination center">
-        <li class="disabled"><a href="#!"><i class="material-icons">chevron_left</i></a></li>
-        <li class="active"><a href="#!">1</a></li>
-        <li class="waves-effect"><a href="#!">2</a></li>
-        <li class="waves-effect"><a href="#!">3</a></li>
-        <li class="waves-effect"><a href="#!">4</a></li>
-        <li class="waves-effect"><a href="#!">5</a></li>
-        <li class="waves-effect"><a href="#!"><i class="material-icons">chevron_right</i></a></li>
-    </ul>
-    </div>`
-    
-    div.innerHTML = div.innerHTML + makeMapInfo().outerHTML + addTable().outerHTML;
+    div.innerHTML = makePagination().outerHTML + makeMapInfo().outerHTML + addTable().outerHTML;
     mainBody.innerHTML = div.innerHTML;
+}
+
+function makePagination() {
+    const paginationUl = document.createElement('ul');
+    paginationUl.className = 'pagination center';
+    if (CURRENT_PAGINATION == 0) {
+        paginationUl.innerHTML = `<li class="disabled"><a><i class="material-icons">chevron_left</i></a></li>` // left arrow
+    } else {
+        paginationUl.innerHTML = `<li class="waves-effect"><a onclick="onPaginationChange(${CURRENT_PAGINATION - 1})"><i class="material-icons">chevron_left</i></a></li>` // left arrow
+    }
+    for (let i = 0; i < MAP_COUNT; i++) {
+        if (i == CURRENT_PAGINATION) {
+            paginationUl.innerHTML += `<li class="active"><a onclick="onPaginationChange(${i})">${i + 1}</a></li>`
+        } else {
+            paginationUl.innerHTML += `<li class="waves-effect"><a onclick="onPaginationChange(${i})">${i + 1}</a></li>`
+        }
+        
+    }
+    if ((CURRENT_PAGINATION + 1) == MAP_COUNT) {
+        paginationUl.innerHTML += `<li class="disabled"><a><i class="material-icons">chevron_right</i></a></li>`
+    } else {
+        paginationUl.innerHTML += `<li class="waves-effect"><a onclick="onPaginationChange(${CURRENT_PAGINATION + 1})"><i class="material-icons">chevron_right</i></a></li>`
+    }
+    return paginationUl;
 }
 
 function makeMapInfo() {
