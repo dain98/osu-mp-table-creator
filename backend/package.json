@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "fastify": "^4.19.2",
+    "ojsama": "^2.2.0"
+  }
+}
