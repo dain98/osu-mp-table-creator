@@ -1,6 +1,24 @@
 import('dotenv').then((dotenv) => dotenv.config());
 const colors = require('./tools/teamnames.js');
 const { modsToString } = require('./tools/bitwisemods.js');
+const NodeCache = require("node-cache");
+const Bottleneck = require("bottleneck");
+
+const ONE_WEEK = 60 * 60 * 24 * 7; // seconds in one week
+
+// Initialize cache with standard TTL of one week for all keys
+const myCache = new NodeCache({ stdTTL: ONE_WEEK });
+
+// Initialize a new limiter
+const limiter = new Bottleneck({
+    minTime: 1000 / 10, // 10 requests per second, 600 requests per minute
+});
+
+limiter.on('error', error => {
+    if (error.message === 'This job has been dropped by Bottleneck') {
+        console.log('Rate limit hit');
+    }
+});
 
 CURRENT_ID = 0;
 RETURNED_DATA = {
@@ -24,8 +42,13 @@ async function parse_mps(mps) {
 
 async function fetch_from_api(mp, id) {
     const url = `${process.env.URL}/get_match?k=${process.env.API_KEY}&mp=${mp}`;
-    const response = await fetch(url);
-    const json = await response.json();
+    let json = myCache.get(url);
+
+    if (!json) {
+        json = await limiter.schedule(() => fetch(url).then(res => res.json()));
+        myCache.set(url, json, 0);
+    }
+
     await convert_api_data(json, id);
 }
 
@@ -42,8 +65,13 @@ async function convert_api_data(data, id) {
 
 async function initialize_beatmap(beatmap_id, mods) {
     const url = `${process.env.URL}/get_beatmaps?k=${process.env.API_KEY}&b=${beatmap_id}`;
-    const response = await fetch(url);
-    const json = await response.json();
+    let json = myCache.get(url);
+
+    if (!json) {
+        json = await limiter.schedule(() => fetch(url).then(res => res.json()));
+        myCache.set(url, json, 0);
+    }
+
     const beatmapset = json[0];
     if (beatmapset == null) {
         RETURNED_DATA['maps'][beatmap_id] = {
@@ -91,8 +119,13 @@ async function append_score_to_json(score, id, beatmap_id) {
 
 async function fetch_player_name(id) {
     const url = `${process.env.URL}/get_user?k=${process.env.API_KEY}&u=${id}`;
-    const response = await fetch(url);
-    const json = await response.json();
+    let json = myCache.get(url);
+
+    if (!json) {
+        json = await limiter.schedule(() => fetch(url).then(res => res.json()));
+        myCache.set(url, json, ONE_WEEK);
+    }
+
     if (json.length == 0) {
         return "<b>RESTRICTED</b>";
     }
