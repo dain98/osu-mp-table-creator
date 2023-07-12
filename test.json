@@ -1,0 +1,93 @@
+{
+    "maps": {
+        "mapid1": {
+            "image": "https://assets.ppy.sh/beatmaps/1234567/covers/cover.jpg",
+            "title": "xi - FREEDOM DIVE [FOUR DIMENSIONS] by Nakagawa-Kanon",
+            "details": "AR9, CS4, OD8, 7.58*",
+            "mods": [
+                "NF",
+                "HR"
+            ],
+            "scores": {
+                "red": {
+                    "players": [
+                        "Dain",
+                        "Seegii",
+                        "Exarch",
+                        "M I L E S"
+                    ],
+                    "score": 3234192
+                },
+                "blue": {
+                    "players": [
+                        "DigitalHypno",
+                        "Cookiezi",
+                        "Toy",
+                        "Apraxia"
+                    ],
+                    "score": 4293232
+                },
+                "green": {
+                    "players": [
+                        "green1",
+                        "green2",
+                        "green3",
+                        "green4"
+                    ],
+                    "score": 2234192
+                },
+                "yellow": {
+                    "players": [
+                        "yellow1",
+                        "yellow2",
+                        "yellow3",
+                        "yellow4"
+                    ],
+                    "score": 8234128
+                }
+            }
+        }
+    },
+    "teams": {
+        "red": [
+            "Dain",
+            "Seegii",
+            "Exarch",
+            "M I L E S",
+            "red5",
+            "red6",
+            "red7",
+            "red8"
+        ],
+        "blue": [
+            "DigitalHypno",
+            "Cookiezi",
+            "Toy",
+            "Apraxia",
+            "Azer",
+            "idke",
+            "blue7",
+            "blue8"
+        ],
+        "green": [
+            "green1",
+            "green2",
+            "green3",
+            "green4",
+            "green5",
+            "green6",
+            "green7",
+            "green8"
+        ],
+        "yellow": [
+            "yellow1",
+            "yellow2",
+            "yellow3",
+            "yellow4",
+            "yellow5",
+            "yellow6",
+            "yellow7",
+            "yellow8"
+        ]
+    }
+}
