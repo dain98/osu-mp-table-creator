@@ -1,46 +1,9 @@
-var sample = [
-    {
-        "team": "Red",
-        "players": [
-            "Dain",
-            "Seegii",
-            "Exarch",
-            "M I L E S"
-        ],
-        "score": "3,234,192"
-    },
-    {
-        "team": "Blue",
-        "players": [
-            "DigitalHypno",
-            "Cookiezi",
-            "Toy",
-            "Apraxia"
-        ],
-        "score": "4,293,232"
-    },
-    {
-        "team": "Green",
-        "players": [
-            "test1",
-            "test2",
-            "test3",
-            "test4"
-        ],
-        "score": "2,234,192"
-    },
-    {
-        "team": "Yellow",
-        "players": [
-            "test5",
-            "test6",
-            "test7",
-            "test8"
-        ],
-        "score": "8,234,128"
-    }
-]
-const MAP_COUNT = 5;
+MAP_COUNT = 0;
+CHIP_DATA = [];
+let PARSED_DATA = {
+    "maps": {},
+};
+
 let CURRENT_PAGINATION = 0;
 var button = document.getElementById('button');
 var mainBody = document.getElementById('main-body');
@@ -53,14 +16,34 @@ var instances = M.Chips.init(elems,{
 
 function onPaginationChange(clickedId) {
     CURRENT_PAGINATION = clickedId;
-    editBody();
+    editBody(false);
 }
 
-function editBody() {
+async function editBody(submitted) {
+    if (submitted) {
+        document.getElementById("loading").style.display = "block";
+        PARSED_DATA = await parseMPData(CHIP_DATA.join(","));
+        document.getElementById("loading").style.display = "none";
+        MAP_COUNT = Object.keys(PARSED_DATA['maps']).length;
+    }
+    let current_map;
+    Object.entries(PARSED_DATA['maps']).forEach(([key, value]) => {
+        if (value['id'] == CURRENT_PAGINATION) {
+            current_map = value;
+        }
+    });
     const div = document.createElement('div');
     div.className = "col s12";
-    div.innerHTML = makePagination().outerHTML + makeMapInfo().outerHTML + addTable().outerHTML;
+    div.innerHTML = makePagination().outerHTML + makeMapInfo(current_map).outerHTML + addTable(current_map).outerHTML + addTeamTable(PARSED_DATA['teams']).outerHTML;
     mainBody.innerHTML = div.innerHTML;
+}
+
+async function parseMPData(mps) {
+    url = `http://localhost:2343?mps=${mps}`;
+    const response = await fetch(url);
+    const data = await response.json();
+    MAP_COUNT = data['maps'].length;
+    return data;
 }
 
 function makePagination() {
@@ -87,15 +70,14 @@ function makePagination() {
     return paginationUl;
 }
 
-function makeMapInfo() {
-    const mapData = {
-        "title": "xi - FREEDOM DIVE [FOUR DIMENSIONS] by Nakagawa-Kanon",
-        "metadata": "AR9, CS4, OD8, 7.58*"
-    }
-    const mapImgUrl = "https://assets.ppy.sh/beatmaps/39804/covers/cover.jpg";
+function makeMapInfo(data) {
     const mapInfoDiv = document.createElement('div');
-
-    mapInfoDiv.innerHTML = mapInfoDiv.innerHTML + makeMapBg(mapImgUrl).outerHTML + makeMapData(mapData).outerHTML;
+    if (data === undefined) {
+        document.getElementById("error").textContent = "No data was returned. Make sure the MP link is formatted correctly, or to press enter after entering the link.";
+    } else {
+        document.getElementById("error").textContent = "";
+    }
+    mapInfoDiv.innerHTML = mapInfoDiv.innerHTML + makeMapBg(data['image']).outerHTML + makeMapData(data).outerHTML;
     return mapInfoDiv;
 }
 
@@ -111,11 +93,34 @@ function makeMapData(mapData) {
     mapInfoDiv.className = 'col s8';
     mapInfoDiv.innerHTML = `
     <h6>${mapData.title}</h6>
-    <h7>${mapData.metadata}</h7>`;
+    <h7>${mapData.details}</h7>`;
     return mapInfoDiv;
 }
 
-function addTable() {
+function addTeamTable(data) {
+    const table = document.createElement('table');
+    table.className = "highlight white-text";
+    table.innerHTML = `<hr><thead>
+    <tr>
+        <th>All Teams</th>
+        <th>All Players</th>
+    </tr>
+    </thead>
+    
+    <tbody>`
+    let tbody = '';
+    Object.entries(data).forEach(([team, value]) => {
+        tbody += `<tr>
+        <td><span style="display: inline-block; width: 10px; height: 10px; margin-right: 5px; background-color: ${team.toLowerCase()};"></span>${team}</td>
+        <td>${value.join(", ")}</td>
+        </tr>`;
+    });
+    tbody += "</tbody>"
+    table.innerHTML += tbody;
+    return table;
+}
+
+function addTable(data) {
     const table = document.createElement('table');
     table.className = "highlight white-text";
     table.innerHTML = `<thead>
@@ -127,12 +132,12 @@ function addTable() {
     </thead>
     
     <tbody>`
-    let tbody = ''
-    sample.forEach(row => {
+    let tbody = '';
+    Object.entries(data['scores']).forEach(([team, value]) => {
         tbody += `<tr>
-        <td>${row.team}</td>
-        <td>${row.players.join(", ")}</td>
-        <td>${row.score}</td>
+        <td><span style="display: inline-block; width: 10px; height: 10px; margin-right: 5px; background-color: ${team.toLowerCase()};"></span>${team}</td>
+        <td>${value.players.join(", ")}</td>
+        <td>${value.score.toLocaleString()}</td>
         </tr>`;
     });
     tbody += "</tbody>"
@@ -141,12 +146,16 @@ function addTable() {
 }
 
 function onChipChange(i) {
-    let a;
     let chipsData = i[0].chipsData;
-    console.log(chipsData);
     chipsData.forEach(chip => {
-        a += chip.tag + ", ";
-    })
-    console.log(a);
+        const ID = parseInt(getMatchID(chip.tag));
+        if (!(CHIP_DATA.includes(ID))) {
+            CHIP_DATA.push(ID);
+        }
+    });
 }
 
+function getMatchID(url) {
+    var parts = url.split('/');
+    return parts[parts.length - 1];
+}

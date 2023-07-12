@@ -1,1 +1,8 @@
-.env
+# Ignore node_modules directory at any location in the project
+**/node_modules/
+
+# Ignore .vscode directory
+**.vscode/
+
+# Ignore .env file at any location in the project
+**/.env

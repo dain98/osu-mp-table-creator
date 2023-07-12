@@ -1,4 +1,5 @@
 const fastify = require('fastify')({ logger: true });
+const cors = require('@fastify/cors');
 
 const { parse_mps } = require('./parser.js');
 
@@ -10,6 +11,7 @@ fastify.get('/', async (request, reply) => {
 
 const start = async () => {
   try {
+    await fastify.register(cors,{});
     await fastify.listen({ port: 2343 });
     fastify.log.info(`server listening on ${fastify.server.address().port}`);
   } catch (err) {
