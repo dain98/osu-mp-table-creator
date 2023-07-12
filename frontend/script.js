@@ -55,6 +55,7 @@ function onPaginationChange(clickedId) {
     CURRENT_PAGINATION = clickedId;
     editBody();
 }
+
 function editBody() {
     const div = document.createElement('div');
     div.className = "col s12";
