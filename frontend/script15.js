@@ -21,10 +21,16 @@ function onPaginationChange(clickedId) {
 
 async function editBody(submitted) {
     if (submitted) {
-        document.getElementById("loading").style.display = "block";
-        PARSED_DATA = await parseMPData(CHIP_DATA.join(","));
-        document.getElementById("loading").style.display = "none";
-        MAP_COUNT = Object.keys(PARSED_DATA['maps']).length;
+        var checkbox = document.getElementById("h2h");
+        if (checkbox.checked) {
+            document.getElementById("error").textContent = "Head to head is not supported yet.";
+            return;
+        } else {
+            document.getElementById("loading").style.display = "block";
+            PARSED_DATA = await parseMPData(CHIP_DATA.join(","));
+            document.getElementById("loading").style.display = "none";
+            MAP_COUNT = Object.keys(PARSED_DATA['maps']).length;
+        }
     }
     let current_map;
     Object.entries(PARSED_DATA['maps']).forEach(([key, value]) => {
@@ -39,7 +45,7 @@ async function editBody(submitted) {
 }
 
 async function parseMPData(mps) {
-    url = `http://localhost:2343?mps=${mps}`;
+    url = `https://ompcbackend.petrichor.one?mps=${mps}`;
     const response = await fetch(url);
     const data = await response.json();
     MAP_COUNT = data['maps'].length;
@@ -74,6 +80,7 @@ function makeMapInfo(data) {
     const mapInfoDiv = document.createElement('div');
     if (data === undefined) {
         document.getElementById("error").textContent = "No data was returned. Make sure the MP link is formatted correctly, or to press enter after entering the link.";
+        return;
     } else {
         document.getElementById("error").textContent = "";
     }
@@ -122,7 +129,7 @@ function addTeamTable(data) {
 
 function addTable(data) {
     const table = document.createElement('table');
-    table.className = "highlight white-text";
+    table.className = "white-text";
     table.innerHTML = `<thead>
     <tr>
         <th>Team</th>
@@ -131,16 +138,29 @@ function addTable(data) {
     </tr>
     </thead>
     
-    <tbody>`
+    <tbody>`;
+    
     let tbody = '';
-    Object.entries(data['scores']).forEach(([team, value]) => {
+    data['scores'].forEach(function(score, index) {
+        let bgColor = '';
+        if(index === 0) {
+            bgColor = '#665D1E';  // Very dark gold
+        } else if(index === 1) {
+            bgColor = '#3C3C3C';  // Very dark silver
+        } else if(index === 2) {
+            bgColor = '#614E1A';  // Very dark bronze
+        }
         tbody += `<tr>
-        <td><span style="display: inline-block; width: 10px; height: 10px; margin-right: 5px; background-color: ${team.toLowerCase()};"></span>${team}</td>
-        <td>${value.players.join(", ")}</td>
-        <td>${value.score.toLocaleString()}</td>
+        <td style="background-color: ${bgColor}; border-radius: 5px; color: white;">
+            <span style="display: inline-block; width: 10px; height: 10px; margin-right: 5px; background-color: ${score.team.toLowerCase()};"></span>
+            ${score.team}
+        </td>
+        <td style="border-radius: 5px;">${score.players.join(", ")}</td>
+        <td style="border-radius: 5px;">${score.score.toLocaleString()}</td>
         </tr>`;
     });
-    tbody += "</tbody>"
+    
+    tbody += "</tbody>";
     table.innerHTML += tbody;
     return table;
 }

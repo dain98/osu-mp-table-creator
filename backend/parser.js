@@ -37,7 +37,14 @@ async function parse_mps(mps) {
         await fetch_from_api(mp, id);
         id += 2;
     }
+    sort_scores();
     return RETURNED_DATA;
+}
+
+function sort_scores() {
+    Object.keys(RETURNED_DATA['maps']).forEach(key => {
+        RETURNED_DATA['maps'][key]['scores'].sort((a, b) => b.score - a.score);
+    });
 }
 
 async function fetch_from_api(mp, id) {
@@ -79,7 +86,7 @@ async function initialize_beatmap(beatmap_id, mods) {
             "image": "http://cdn.petrichor.one/u/FzLCHi.png",
             "title": "BEATMAP NOT FOUND",
             "details": `${modsToString(mods).join(", ")}`,
-            "scores": {}
+            "scores": []
         }
     } else {
         RETURNED_DATA['maps'][beatmap_id] = {
@@ -87,7 +94,7 @@ async function initialize_beatmap(beatmap_id, mods) {
             "image": `https://assets.ppy.sh/beatmaps/${beatmapset['beatmapset_id']}/covers/cover.jpg`,
             "title": beatmapset['artist'] + " - " + beatmapset['title'] + " [" + beatmapset['version'] + "]" + " by " + beatmapset['creator'],
             "details": `AR${beatmapset['diff_approach']}, CS${beatmapset['diff_size']}, OD${beatmapset['diff_overall']}, ${parseFloat(beatmapset['difficultyrating']).toFixed(2)}* | <b>+${modsToString(mods).join(", ")}</b>`,
-            "scores": {}
+            "scores": []
         };
     }
     CURRENT_ID++;
@@ -103,15 +110,19 @@ async function append_score_to_json(score, id, beatmap_id) {
         RETURNED_DATA['teams'][teamColor].push(playerName);
     }
 
-    if (!(teamColor in RETURNED_DATA['maps'][beatmap_id]['scores'])) {
-        RETURNED_DATA['maps'][beatmap_id]['scores'][teamColor] = {
-            "players": [],
-            "score": 0
-        }
+    let team = RETURNED_DATA['maps'][beatmap_id]['scores'].find(score => score.team === teamColor);
+
+    if (!team) {
+        RETURNED_DATA['maps'][beatmap_id]['scores'].push({
+            "team": teamColor,
+            "players": [ playerName ],
+            "score": parseInt(score['score'])
+        });
+    } else {
+        team.players.push(playerName);
+        team.score += parseInt(score['score']);
     }
-    RETURNED_DATA['maps'][beatmap_id]['scores'][teamColor]['players'].push(playerName);
-    RETURNED_DATA['maps'][beatmap_id]['scores'][teamColor]['score'] += parseInt(score['score']);
-    // append FM to mods if enabled_mods isn't null
+
     if (score['enabled_mods'] != null && !(RETURNED_DATA['maps'][beatmap_id]['details'].includes("FM"))) {
         RETURNED_DATA['maps'][beatmap_id]['details'] += "<b>FM</b>";
     }

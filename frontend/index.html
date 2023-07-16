@@ -1,24 +1,25 @@
 
 <html>
   <head>
+      <link rel="shortcut icon" type="image/x-icon" href="http://cdn.petrichor.one/u/0vuqCZ.png" />
       <title>osu! MP Compare Tool</title>
       <!--Import Google Icon Font-->
       <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
       <!--Import materialize.css-->
       <link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/>
-  
+
       <!--Let browser know website is optimized for mobile-->
       <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-      <link rel="shortcut icon" type="image/jpg" href="https://i.imgur.com/FIQowlz.png"/>
       <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
       <script type="text/javascript" 
           src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-      <script src="script.js" defer></script>
+      <script src="script15.js" defer></script>
   </head>
   <body>
       <div class="container white-text" >
         <blockquote>
-          Created by <a href="https://twitter.com/imd_js">Dain Im</a>. GFX done by <a href="https://twitter.com/shdewz">shdewz</a>.
+          Created by <a href="https://dain.cafe">Dain Im</a>. GFX done by <a href="https://twitter.com/shdewz">shdewz</a>.
+          <br>See anything off? Send me a Twitter DM over at <a href="https://twitter.com/imd_js">@imd_js</a>.
         </blockquote>
         <div class="row">
           <div class="col s12">
@@ -30,8 +31,14 @@
             </div>
           </div>
           <div class="col s12">
-            <div class="col s2"><a class="waves-effect waves-dark btn" onclick="editBody(true)">Submit</a></div>
-            <div class="col s10"><h6 class="red-text" id="error"></h6></div>
+            <div class="col s3" style="display: flex; align-items: center; justify-content: space-between;">
+              <a class="waves-effect waves-dark btn" onclick="editBody(true)">Submit</a>
+              <label style="color: white; margin-left: 20px;">
+                <input type="checkbox" class="filled-in" id="h2h" />
+                <span>H2H?</span>
+              </label>
+            </div>
+            <div class="col s9"><h6 class="red-text" id="error"></h6></div>
             <div class="progress" id="loading" style="display:none; margin-top: 50px;">
               <div class="indeterminate"></div>
             </div>

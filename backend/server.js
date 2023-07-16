@@ -11,8 +11,8 @@ fastify.get('/', async (request, reply) => {
 
 const start = async () => {
   try {
-    await fastify.register(cors,{});
-    await fastify.listen({ port: 2343 });
+    await fastify.register(cors);
+    await fastify.listen(2343, '0.0.0.0');
     fastify.log.info(`server listening on ${fastify.server.address().port}`);
   } catch (err) {
     fastify.log.error(err);
