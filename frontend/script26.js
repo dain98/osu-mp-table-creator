@@ -14,6 +14,48 @@ var instances = M.Chips.init(elems,{
     onChipDelete: () => onChipChange(instances)
 });
 
+// script.js
+
+window.onload = async function() {
+    // Get the query string from the URL
+    let queryString = window.location.search;
+
+    // Check if there are no parameters
+    if (!queryString || queryString === '?') {
+        // Insert code to perform when there are no parameters
+        return;
+    }
+
+    // Remove the leading '?' character
+    queryString = queryString.substring(1);
+
+    // Split the query string into individual parameters
+    let params = queryString.split('&');
+
+    // Initialize an empty object to hold the parameter names and values
+    let paramsObj = {};
+
+    // Loop through the parameters
+    for (let i = 0; i < params.length; i++) {
+        // Split each parameter into a name and a value
+        let param = params[i].split('=');
+
+        // Decode the parameter name and value, and add them to the paramsObj
+        let paramName = decodeURIComponent(param[0]);
+        let paramValue = decodeURIComponent(param[1]);
+
+        // If the parameter name is "mps", split the value into an array of numbers
+        if (paramName === 'mps') {
+            paramValue = paramValue.split(',').map(Number);
+        }
+
+        paramsObj[paramName] = paramValue;
+    }
+    CHIP_DATA = paramsObj['mps'];
+    // Display the paramsObj as an alert
+    await editBody(true);
+}
+
 function onPaginationChange(clickedId) {
     CURRENT_PAGINATION = clickedId;
     editBody(false);
@@ -30,6 +72,12 @@ async function editBody(submitted) {
             PARSED_DATA = await parseMPData(CHIP_DATA.join(","));
             document.getElementById("loading").style.display = "none";
             MAP_COUNT = Object.keys(PARSED_DATA['maps']).length;
+            // Edit the URL to include the CHIP_DATA as a parameter
+            let url = new URL(window.location.href);
+            url.searchParams.set('mps', CHIP_DATA.join(","));
+            let urlString = url.toString();
+            urlString = urlString.replace(/%2C/g, ',');
+            history.pushState({}, '', urlString);
         }
     }
     let current_map;
