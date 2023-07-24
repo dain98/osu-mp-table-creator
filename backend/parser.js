@@ -101,6 +101,9 @@ async function initialize_beatmap(beatmap_id, mods) {
 }
 
 async function append_score_to_json(score, id, beatmap_id) {
+    if (parseInt(score['team']) === 0) {
+        return;
+    }
     const teamColor = colors[parseInt(score['team']) + id];
     const playerName = await fetch_player_name(score['user_id']);
     if (!(teamColor in RETURNED_DATA['teams'])) {

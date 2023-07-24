@@ -166,12 +166,38 @@ function addTable(data) {
 }
 
 function onChipChange(i) {
-    let chipsData = i[0].chipsData;
-    chipsData.forEach(chip => {
-        const ID = parseInt(getMatchID(chip.tag));
-        if (!(CHIP_DATA.includes(ID))) {
-            CHIP_DATA.push(ID);
+    let chipsInstance = i[0];
+    let chipsData = chipsInstance.chipsData;
+    let newChipData = [];
+
+    // Iterate over each chip
+    chipsData.forEach((chip, index) => {
+        const tag = chip.tag;
+        // Check if the chip contains a comma
+        if (tag.includes(',')) {
+            // Remove the chip
+            chipsInstance.deleteChip(index);
+            // Split the chip and add each item as a new chip
+            var items = tag.split(',');
+            items.forEach((item) => {
+                let trimmedItem = item.trim();
+                newChipData.push({tag: trimmedItem});
+                const ID = parseInt(getMatchID(trimmedItem));
+                if (!(CHIP_DATA.includes(ID))) {
+                    CHIP_DATA.push(ID);
+                }
+            });
+        } else {
+            const ID = parseInt(getMatchID(tag));
+            if (!(CHIP_DATA.includes(ID))) {
+                CHIP_DATA.push(ID);
+            }
         }
+    });
+
+    // Add the new chips
+    newChipData.forEach(chip => {
+        chipsInstance.addChip(chip);
     });
 }
 
